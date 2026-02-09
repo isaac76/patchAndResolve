@@ -1,0 +1,28 @@
+{
+    "title": "Test Project",
+    "description": "This is a test project for integration testing.",
+    "version": "1",
+    "image": {
+        "xOffset": 0,
+        "yOffset": 0,
+        "width": 100,
+        "height": 100,
+        "imageId": "test-image"
+    },
+    "asset": {
+        "xOffset": 0,
+        "yOffset": 0,
+        "width": 100,
+        "height": 100,
+        "assetId": "test-asset"
+    },
+    "textAsset": {
+        "xOffset": 0,
+        "yOffset": 0,
+        "fontSize": 12,
+        "fontFamily": "Arial",
+        "fontColor": "#000000",
+        "textAssetId": "test-text-asset",
+        "text": "Hello, World!"
+    }
+}

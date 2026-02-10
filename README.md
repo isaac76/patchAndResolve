@@ -212,6 +212,62 @@ The `ConflictValueRenderContext` provides:
 
 This allows you to create rich, context-aware visualizations that help users make informed decisions about which value to keep.
 
+### Integration with JSON Patch (RFC 6902)
+
+If your application uses JSON Patch format (RFC 6902) with libraries like `fast-json-patch`, you can convert between JSON Patch operations and the simple diff format used by this library:
+
+```typescript
+import { jsonPatchToDiff, diffToJsonPatch, ConflictResolver } from 'patch-and-resolve';
+
+// Backend sends JSON Patch operations
+const localOps = [
+  { op: "replace", path: "/message", value: "Local edit" },
+  { op: "add", path: "/x", value: 100 }
+];
+
+const remoteOps = [
+  { op: "replace", path: "/message", value: "Remote edit" },
+  { op: "add", path: "/y", value: 200 }
+];
+
+// Convert to diffs for conflict resolution
+const localDiff = jsonPatchToDiff(localOps);   // { message: "Local edit", x: 100 }
+const remoteDiff = jsonPatchToDiff(remoteOps); // { message: "Remote edit", y: 200 }
+
+// Merge with conflict detection
+const resolver = new ConflictResolver();
+const result = resolver.mergePatches(localDiff, [remoteDiff]);
+
+if (result.success) {
+  // Convert back to JSON Patch if needed
+  const patchOps = diffToJsonPatch(result.merged);
+  // Result: [
+  //   { op: "replace", path: "/message", value: "Local edit" },
+  //   { op: "replace", path: "/x", value: 100 },
+  //   { op: "replace", path: "/y", value: 200 }
+  // ]
+  
+  // Apply to your document with fast-json-patch
+  applyPatch(document, patchOps);
+} else {
+  // Show conflict UI to user
+  // After user resolves conflicts:
+  const resolved = resolver.applyResolutions(localDiff, [remoteDiff], resolutions);
+  
+  // Convert resolved patch back to JSON Patch format
+  const resolvedOps = diffToJsonPatch(resolved.resolved);
+  // Send back to server or apply locally
+  applyPatch(document, resolvedOps);
+}
+```
+
+**Supported JSON Patch Operations:**
+- ✅ `add` and `replace` - Converted to field updates
+- ❌ `remove`, `move`, `copy`, `test` - Ignored (don't map to simple diffs)
+- ⚠️ Only top-level paths supported (e.g., `/message` works, `/user/name` ignored)
+
+This makes the library compatible with standard JSON Patch workflows while providing an intuitive UI for conflict resolution.
+
 ## Development
 
 ```bash

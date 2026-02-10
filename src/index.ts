@@ -12,3 +12,8 @@ export type {
   ConflictResolution,
   ResolveResult,
 } from './types';
+export {
+  jsonPatchToDiff,
+  diffToJsonPatch,
+} from './utils/jsonPatchAdapter';
+export type { JsonPatchOperation } from './utils/jsonPatchAdapter';

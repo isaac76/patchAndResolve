@@ -15,6 +15,54 @@
 
 ---
 
+## High Priority
+
+### Migrate to npm Trusted Publishing
+**Goal:** Replace granular access tokens with secure, automated npm publishing
+
+**Current Issue:**
+- Using granular access token with 2FA bypass (expires in 90 days max)
+- npm warning: "classic tokens have been revoked. Granular tokens are now limited to 90 days and require 2FA by default"
+- Token will need manual renewal every 90 days
+- Security risk if token leaks (can publish without 2FA)
+
+**Solution: npm Trusted Publishing (Provenance)**
+Uses GitHub's OIDC tokens instead of long-lived npm tokens. More secure because:
+- ✅ No long-lived tokens to manage or renew
+- ✅ No tokens to leak or expire
+- ✅ Directly authenticated by GitHub Actions (OpenID Connect)
+- ✅ Automatic provenance attestation (shows package was built in verified CI)
+- ✅ npm recommends this for automation/CI
+
+**Implementation Steps:**
+1. **On npmjs.com** (after first package is published):
+   - Go to package settings for `@iodev/patch-and-resolve`
+   - Navigate to "Publishing Access" or "Trusted Publishers"
+   - Add GitHub as a publishing provider
+   - Configure: `isaac76/patchAndResolve` repository, `main` branch
+
+2. **Update `.github/workflows/release.yml`**:
+   - Add `id-token: write` permission
+   - Add `provenance: true` to npm publish step
+   - Remove `NPM_TOKEN` environment variable
+   - Workflow will use OIDC tokens automatically
+
+3. **Remove GitHub Secret**:
+   - Delete `NPM_TOKEN` from repository secrets (no longer needed)
+
+4. **Test**:
+   - Push a commit with conventional format
+   - Verify semantic-release publishes successfully without npm token
+   - Check package on npm shows provenance badge
+
+**References:**
+- npm blog: https://github.blog/2023-04-19-introducing-npm-package-provenance/
+- npm docs: https://docs.npmjs.com/generating-provenance-statements
+
+**Priority:** Medium-High (token expires in 90 days, but not urgent)
+
+---
+
 ## Future Enhancements
 
 ### 1. Verify NPM Package Integration
@@ -66,7 +114,6 @@
 - Marketing/documentation tool
 
 ### 3. Advanced Features (Lower Priority)
-- [ ] Add provenance/attestation for npm publishing (Trusted Publishing)
 - [ ] Performance benchmarks for deeply nested objects
 - [ ] Support for array item merging (currently treats arrays as atomic values)
 - [ ] Plugin system for custom conflict resolution strategies

@@ -12,14 +12,53 @@ interface PatchManagerProps {
  */
 export const PatchManager: React.FC<PatchManagerProps> = ({ onMergeComplete }) => {
   const [localPatchText, setLocalPatchText] = useState(
-    JSON.stringify({ version: 15, message: 'Hello from desktop', x: 100, y: 50 }, null, 2),
+    JSON.stringify({
+      version: 15,
+      message: 'Hello from desktop',
+      x: 100,
+      y: 50,
+      user: {
+        name: 'Alice',
+        location: {
+          city: 'Boston',
+          state: 'MA',
+          zip: '02101',
+        },
+      },
+    }, null, 2),
   );
   const [remotePatches, setRemotePatches] = useState<Patch[]>([
-    { version: 16, message: 'Hello from mobile', x: 110, y: 60 },
+    {
+      version: 16,
+      message: 'Hello from mobile',
+      x: 110,
+      y: 60,
+      user: {
+        name: 'Alice',
+        location: {
+          city: 'New York',
+          state: 'NY',
+          zip: '10001',
+        },
+      },
+    },
     { version: 17, z: 300 },
   ]);
   const [remotePatchTexts, setRemotePatchTexts] = useState<string[]>([
-    JSON.stringify({ version: 16, message: 'Hello from mobile', x: 110, y: 60 }, null, 2),
+    JSON.stringify({
+      version: 16,
+      message: 'Hello from mobile',
+      x: 110,
+      y: 60,
+      user: {
+        name: 'Alice',
+        location: {
+          city: 'New York',
+          state: 'NY',
+          zip: '10001',
+        },
+      },
+    }, null, 2),
     JSON.stringify({ version: 17, z: 300 }, null, 2),
   ]);
   const [result, setResult] = useState<MergeResult | null>(null);
@@ -89,6 +128,33 @@ export const PatchManager: React.FC<PatchManagerProps> = ({ onMergeComplete }) =
   // Custom renderer for visual previews
   const renderConflictValue = (value: any, context: { conflict: any; side: 'local' | 'remote'; isSelected: boolean }) => {
     const { isSelected } = context;
+
+    // Handle simple string values (like nested location fields)
+    if (typeof value === 'string') {
+      return (
+        <div
+          style={{
+            backgroundColor: isSelected ? '#e8f5e9' : '#f5f5f5',
+            padding: '20px',
+            borderRadius: '4px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            minHeight: '80px',
+          }}
+        >
+          <div
+            style={{
+              fontSize: '18px',
+              fontWeight: 'bold',
+              color: isSelected ? '#2e7d32' : '#1976d2',
+            }}
+          >
+            {value}
+          </div>
+        </div>
+      );
+    }
 
     // Check if this is a conflict with visual properties we can preview
     const hasMessage = value && typeof value === 'object' && 'message' in value;

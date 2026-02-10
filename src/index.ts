@@ -17,3 +17,10 @@ export {
   diffToJsonPatch,
 } from './utils/jsonPatchAdapter';
 export type { JsonPatchOperation } from './utils/jsonPatchAdapter';
+export {
+  getNestedValue,
+  setNestedValue,
+  hasNestedPath,
+  getAllPaths,
+  deepEqual,
+} from './utils/deepPath';

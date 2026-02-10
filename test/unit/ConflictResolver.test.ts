@@ -354,7 +354,7 @@ describe('ConflictResolver', () => {
 
       expect(result.success).toBe(false);
       expect(result.conflicts).toHaveLength(1);
-      expect(result.conflicts?.[0].path).toBe('textAsset');
+      expect(result.conflicts?.[0].path).toBe('textAsset.text');
     });
 
     it('should handle catching up with multiple server versions', () => {

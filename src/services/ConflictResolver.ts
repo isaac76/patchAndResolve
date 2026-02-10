@@ -5,67 +5,78 @@ import type {
   ConflictResolution,
   ResolveResult,
 } from '../types';
+import {
+  getAllPaths,
+  getNestedValue,
+  setNestedValue,
+  deepEqual,
+} from '../utils/deepPath';
 
 /**
  * Service for merging patches and resolving conflicts
  */
 export class ConflictResolver {
   /**
-   * Attempt to merge multiple remote patches into a local patch.
-   * Merges patches sequentially and collects all conflicts.
-   * Returns success if all patches merge without conflicts.
-   * If any conflicts occur, returns all conflicts for manual resolution.
-   * If patches contain a 'version' field, the higher version is used.
+   * Merge multiple remote patches into a local patch with deep (nested) conflict detection.
    *
-   * Note: Later remote patches can overwrite earlier remote patches without conflict.
-   * Conflicts only occur when a remote patch tries to modify a field that exists in the local patch.
+   * **Conflict Rules:**
+   * - Conflicts occur ONLY when the exact same path is modified by both local and remote patches
+   * - Different paths merge automatically, even if they share a parent object
+   * - Example: local changes `user.name`, remote changes `user.address.city` → No conflict (different paths)
+   * - Example: local changes `user.name`, remote changes `user.name` → Conflict (same path)
    *
-   * @param localPatch - The base patch (e.g., version 15)
-   * @param remotePatches - Array of patches to merge (e.g., versions 16-20)
-   * @returns MergeResult with either merged patch or all conflicts
+   * **Path Format:**
+   * - Uses dot notation: "user.name", "pages.0.container.text.fontSize"
+   * - Arrays are treated as single values (conflicts if entire array differs)
+   * - Flat objects work perfectly fine (treated as depth-1 nested objects)
+   *
+   * **Note:** Later remote patches can overwrite earlier remote patches without conflict.
+   * Conflicts only occur between the local patch and remote patches.
+   *
+   * @param localPatch - The base patch with potential nested structure
+   * @param remotePatches - Array of remote patches to merge
+   * @returns MergeResult with either merged patch or conflicts requiring resolution
    */
   mergePatches(localPatch: Patch, remotePatches: Patch[]): MergeResult {
     const allConflicts: Conflict[] = [];
-    const localKeys = new Set(Object.keys(localPatch).filter(k => k !== 'version'));
-    const currentMerged = { ...localPatch };
+    const localPaths = getAllPaths(localPatch);
+    const currentMerged = JSON.parse(JSON.stringify(localPatch)); // Deep clone
+
+    // Track which paths have been seen in local patch
+    const localPathsSet = new Set(localPaths);
 
     // Merge each remote patch sequentially
     for (let i = 0; i < remotePatches.length; i++) {
       const remotePatch = remotePatches[i];
-      const remoteKeys = Object.keys(remotePatch);
+      const remotePaths = getAllPaths(remotePatch);
 
-      // Find conflicts: remote patch modifies fields that exist in LOCAL patch
-      // (remote patches can overwrite each other without conflict)
-      const conflictKeys = remoteKeys.filter(key =>
-        key !== 'version' &&
-        localKeys.has(key) &&
-        !this.areValuesEqual(localPatch[key], remotePatch[key]),
-      );
+      // Find conflicts: paths that exist in BOTH local and current remote
+      // and have different values
+      for (const path of remotePaths) {
+        if (localPathsSet.has(path)) {
+          const localValue = getNestedValue(localPatch, path);
+          const remoteValue = getNestedValue(remotePatch, path);
 
-      if (conflictKeys.length > 0) {
-        // Collect conflicts from this patch
-        conflictKeys.forEach(path => {
-          // Only add conflict if we haven't already recorded it for this path
-          const existingConflict = allConflicts.find(c => c.path === path);
-          if (!existingConflict) {
-            allConflicts.push({
-              path,
-              localValue: localPatch[path],
-              remoteValue: remotePatch[path],
-              remotePatchIndex: i,
-            });
+          if (!deepEqual(localValue, remoteValue)) {
+            // Only add if not already recorded
+            const existingConflict = allConflicts.find(c => c.path === path);
+            if (!existingConflict) {
+              allConflicts.push({
+                path,
+                localValue,
+                remoteValue,
+                remotePatchIndex: i,
+              });
+            }
           }
-        });
+        }
+
+        // Merge the remote value into currentMerged (overwrites previous remote values)
+        const remoteValue = getNestedValue(remotePatch, path);
+        setNestedValue(currentMerged, path, remoteValue);
       }
 
-      // Merge all fields from remote patch (overwrites previous remote values)
-      remoteKeys.forEach(key => {
-        if (key !== 'version') {
-          currentMerged[key] = remotePatch[key];
-        }
-      });
-
-      // Update version to highest seen so far
+      // Handle version field specially
       const version = this.getHigherVersion(currentMerged.version, remotePatch.version);
       if (version !== undefined) {
         currentMerged.version = version;
@@ -91,68 +102,72 @@ export class ConflictResolver {
   /**
    * Apply conflict resolutions to produce the final merged patch.
    *
-   * @param localPatch - The base patch
+   * @param localPatch - The base patch with potential nested structure
    * @param remotePatches - Array of remote patches
    * @param resolutions - Array of conflict resolutions
-   * @returns Final resolved patch
+   * @returns Final resolved patch with deep merging
    */
   applyResolutions(
     localPatch: Patch,
     remotePatches: Patch[],
     resolutions: ConflictResolution[],
   ): ResolveResult {
-    // Start with local patch
-    const resolved = { ...localPatch };
+    // Start with deep clone of local patch
+    const resolved = JSON.parse(JSON.stringify(localPatch));
 
-    // Build a map of conflict resolutions by conflict index
+    // Build resolution map
     const resolutionMap = new Map<number, ConflictResolution>();
     resolutions.forEach(res => {
       resolutionMap.set(res.conflictIndex, res);
     });
 
-    // Collect all conflicts again to know which fields conflict
+    // Collect all conflicts again
     const allConflicts: Conflict[] = [];
-    const tempMerged = { ...localPatch };
+    const localPaths = getAllPaths(localPatch);
+    const localPathsSet = new Set(localPaths);
 
     for (let i = 0; i < remotePatches.length; i++) {
       const remotePatch = remotePatches[i];
-      const currentKeys = Object.keys(tempMerged);
-      const remoteKeys = Object.keys(remotePatch);
+      const remotePaths = getAllPaths(remotePatch);
 
-      const conflictKeys = currentKeys.filter(key =>
-        key !== 'version' &&
-        remoteKeys.includes(key) &&
-        !this.areValuesEqual(tempMerged[key], remotePatch[key]),
-      );
+      for (const path of remotePaths) {
+        if (localPathsSet.has(path)) {
+          const localValue = getNestedValue(localPatch, path);
+          const remoteValue = getNestedValue(remotePatch, path);
 
-      conflictKeys.forEach(path => {
-        allConflicts.push({
-          path,
-          localValue: tempMerged[path],
-          remoteValue: remotePatch[path],
-          remotePatchIndex: i,
-        });
-      });
+          if (!deepEqual(localValue, remoteValue)) {
+            allConflicts.push({
+              path,
+              localValue,
+              remoteValue,
+              remotePatchIndex: i,
+            });
+          }
+        }
+      }
     }
 
-    // Apply resolutions
+    // Apply resolutions for conflicting paths
+    const conflictPaths = new Set<string>();
     allConflicts.forEach((conflict, index) => {
+      conflictPaths.add(conflict.path);
       const resolution = resolutionMap.get(index);
       if (resolution) {
         if (resolution.strategy === 'use-local') {
-          resolved[conflict.path] = conflict.localValue;
+          setNestedValue(resolved, conflict.path, conflict.localValue);
         } else {
-          resolved[conflict.path] = conflict.remoteValue;
+          setNestedValue(resolved, conflict.path, conflict.remoteValue);
         }
       }
     });
 
-    // Merge all non-conflicting fields from remote patches
+    // Merge all non-conflicting paths from remote patches
     remotePatches.forEach(remotePatch => {
-      const conflictPaths = new Set(allConflicts.map(c => c.path));
-      Object.keys(remotePatch).forEach(key => {
-        if (key !== 'version' && !conflictPaths.has(key)) {
-          resolved[key] = remotePatch[key];
+      const remotePaths = getAllPaths(remotePatch);
+      remotePaths.forEach(path => {
+        if (!conflictPaths.has(path)) {
+          const remoteValue = getNestedValue(remotePatch, path);
+          setNestedValue(resolved, path, remoteValue);
         }
       });
     });
@@ -179,12 +194,5 @@ export class ConflictResolver {
     if (version1 === undefined) {return version2;}
     if (version2 === undefined) {return version1;}
     return Math.max(version1, version2);
-  }
-
-  /**
-   * Check if two values are equal using deep comparison
-   */
-  private areValuesEqual(val1: any, val2: any): boolean {
-    return JSON.stringify(val1) === JSON.stringify(val2);
   }
 }

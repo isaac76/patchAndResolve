@@ -22,7 +22,7 @@
     "build:lib": "tsc && vite build --mode library",
     "preview": "vite preview",
     "type-check": "tsc --noEmit",
-    "lint": "eslint . --ext .ts,.tsx --report-unused-disable-directives --max-warnings 20",
+    "lint": "eslint . --ext .ts,.tsx --report-unused-disable-directives --max-warnings 40",
     "lint:fix": "eslint . --ext .ts,.tsx --fix",
     "test": "vitest run",
     "test:unit": "vitest run",

@@ -1,3 +1,10 @@
+## [1.0.2](https://github.com/isaac76/patchAndResolve/compare/v1.0.1...v1.0.2) (2026-02-10)
+
+
+### Bug Fixes
+
+* add jsonpatch utils ([#4](https://github.com/isaac76/patchAndResolve/issues/4)) ([f5c2a83](https://github.com/isaac76/patchAndResolve/commit/f5c2a83b585d457d18cc8f927165aed67d114bcf))
+
 ## [1.0.1](https://github.com/isaac76/patchAndResolve/compare/v1.0.0...v1.0.1) (2026-02-10)
 
 

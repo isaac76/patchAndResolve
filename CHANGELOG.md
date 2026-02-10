@@ -1,3 +1,10 @@
+## [1.0.5](https://github.com/isaac76/patchAndResolve/compare/v1.0.4...v1.0.5) (2026-02-10)
+
+
+### Bug Fixes
+
+* more f1xes for semantic release ([#9](https://github.com/isaac76/patchAndResolve/issues/9)) ([7968b32](https://github.com/isaac76/patchAndResolve/commit/7968b3269f2e1de4ac1b91c5a4e3363c3ee6b759))
+
 ## [1.0.4](https://github.com/isaac76/patchAndResolve/compare/v1.0.3...v1.0.4) (2026-02-10)
 
 

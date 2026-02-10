@@ -1,3 +1,10 @@
+## [1.0.3](https://github.com/isaac76/patchAndResolve/compare/v1.0.2...v1.0.3) (2026-02-10)
+
+
+### Bug Fixes
+
+* handle nested object merges ([#6](https://github.com/isaac76/patchAndResolve/issues/6)) ([50ae4a4](https://github.com/isaac76/patchAndResolve/commit/50ae4a4e8f981021826e54c5b137f015ca323581))
+
 ## [1.0.2](https://github.com/isaac76/patchAndResolve/compare/v1.0.1...v1.0.2) (2026-02-10)
 
 

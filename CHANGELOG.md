@@ -1,3 +1,10 @@
+## [1.0.7](https://github.com/isaac76/patchAndResolve/compare/v1.0.6...v1.0.7) (2026-02-10)
+
+
+### Bug Fixes
+
+* add keywords ([#11](https://github.com/isaac76/patchAndResolve/issues/11)) ([ad60275](https://github.com/isaac76/patchAndResolve/commit/ad60275259e50868f4aba71d582e03c5c869568f))
+
 ## [1.0.6](https://github.com/isaac76/patchAndResolve/compare/v1.0.5...v1.0.6) (2026-02-10)
 
 

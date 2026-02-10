@@ -20,7 +20,7 @@ export default defineConfig(({ mode }) => {
           entry: resolve(__dirname, 'src/index.ts'),
           name: 'PatchAndResolve',
           formats: ['es', 'umd'],
-          fileName: (format) => `patch-and-resolve.${format}.js`,
+          fileName: (format) => `patchAndResolve.${format}.js`,
         },
         rollupOptions: {
           external: ['react', 'react-dom'],

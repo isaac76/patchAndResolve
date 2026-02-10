@@ -1,16 +1,21 @@
 {
+<<<<<<< Updated upstream
   "name": "patch-and-resolve",
   "version": "1.0.3",
+=======
+  "name": "patchAndResolve",
+  "version": "1.0.2",
+>>>>>>> Stashed changes
   "private": false,
   "type": "module",
-  "main": "./dist/patch-and-resolve.umd.js",
-  "module": "./dist/patch-and-resolve.es.js",
+  "main": "./dist/patchAndResolve.umd.js",
+  "module": "./dist/patchAndResolve.es.js",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/patch-and-resolve.es.js",
-      "require": "./dist/patch-and-resolve.umd.js"
+      "import": "./dist/patchAndResolve.es.js",
+      "require": "./dist/patchAndResolve.umd.js"
     }
   },
   "files": [

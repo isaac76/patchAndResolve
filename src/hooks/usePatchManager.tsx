@@ -20,6 +20,7 @@ export function usePatchMerger(options?: UsePatchMergerOptions) {
 
   /**
    * Attempt to merge multiple remote patches into a local patch.
+   * Supports nested object structures with field-level conflict detection.
    * If successful, calls onMergeSuccess with the merged patch.
    * If conflicts exist, stores the result and calls onConflict.
    */

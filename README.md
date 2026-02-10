@@ -129,6 +129,96 @@ const result = resolver.mergePatches(localPatch, remotePatches);
 
 Remote patches are merged sequentially, and later patches can overwrite earlier ones without conflict. Conflicts only occur between your local changes and the remote patches.
 
+### Nested Object Support
+
+The library supports merging patches with nested object structures. This method handles complex nested data while following simple conflict rules:
+
+**Conflict Rules:**
+- ✅ Conflicts occur **only when the exact same path** is modified by both patches
+- ✅ Different paths merge automatically, even under the same parent object
+- ✅ Arrays are treated as single values (conflict if entire array differs)
+
+```typescript
+import { ConflictResolver } from 'patch-and-resolve';
+
+const resolver = new ConflictResolver();
+
+const localPatch = {
+  user: {
+    name: 'Alice',
+    email: 'alice@example.com',
+  },
+  title: 'My Project',
+};
+
+const remotePatch = {
+  user: {
+    phone: '555-1234',      // Different path: user.phone
+    address: {              // Different path: user.address.city
+      city: 'NYC',
+    },
+  },
+  description: 'Updated',   // Different path: description
+};
+
+const result = resolver.mergePatches(localPatch, [remotePatch]);
+
+// Result: Success! All paths are different, so no conflicts
+// Merged: {
+//   user: {
+//     name: 'Alice',          // from local
+//     email: 'alice@...',     // from local
+//     phone: '555-1234',      // from remote
+//     address: { city: 'NYC' } // from remote
+//   },
+//   title: 'My Project',      // from local
+//   description: 'Updated'    // from remote
+// }
+```
+
+**Conflict Example:**
+
+```typescript
+const localPatch = {
+  user: {
+    name: 'Alice',  // This path: user.name
+  },
+};
+
+const remotePatch = {
+  user: {
+    name: 'Bob',    // Same path: user.name → CONFLICT!
+  },
+};
+
+const result = resolver.mergePatches(localPatch, [remotePatch]);
+
+// Result: Conflict detected
+// result.conflicts[0] = {
+//   path: 'user.name',
+//   localValue: 'Alice',
+//   remoteValue: 'Bob',
+//   remotePatchIndex: 0
+// }
+```
+
+**Resolving Conflicts:**
+
+```typescript
+// After user makes choices in the UI
+const resolutions = [
+  { conflictIndex: 0, strategy: 'use-local' },  // Keep 'Alice'
+];
+
+const resolved = resolver.applyResolutions(localPatch, [remotePatch], resolutions);
+// resolved.resolved contains the final merged patch
+```
+
+**Path Format:**
+- Paths use dot notation: `"user.name"`, `"user.address.city"`
+- Arrays are identified by their parent path: `"tags"`, `"pages"`
+- Version fields are automatically handled and excluded from conflict detection
+
 ### Conflict Navigation
 
 When multiple conflicts are detected, the UI provides Previous/Next/Finish buttons to step through them one at a time:

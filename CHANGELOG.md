@@ -1,3 +1,11 @@
+## [1.0.4](https://github.com/isaac76/patchAndResolve/compare/v1.0.3...v1.0.4) (2026-02-10)
+
+
+### Bug Fixes
+
+* semantic release ([#8](https://github.com/isaac76/patchAndResolve/issues/8)) ([e277042](https://github.com/isaac76/patchAndResolve/commit/e2770428f04aeab44ebeda0791b90b4e25147b2a))
+* update module name ([#7](https://github.com/isaac76/patchAndResolve/issues/7)) ([6a4ba0f](https://github.com/isaac76/patchAndResolve/commit/6a4ba0fddd625e5a5ed7b391a2506ae4444c7ded))
+
 ## [1.0.3](https://github.com/isaac76/patchAndResolve/compare/v1.0.2...v1.0.3) (2026-02-10)
 
 

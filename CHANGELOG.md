@@ -1,3 +1,10 @@
+## [1.0.6](https://github.com/isaac76/patchAndResolve/compare/v1.0.5...v1.0.6) (2026-02-10)
+
+
+### Bug Fixes
+
+* make public ([#10](https://github.com/isaac76/patchAndResolve/issues/10)) ([8db2a73](https://github.com/isaac76/patchAndResolve/commit/8db2a731ac9c393719fd218daab36aa721660950))
+
 ## [1.0.5](https://github.com/isaac76/patchAndResolve/compare/v1.0.4...v1.0.5) (2026-02-10)
 
 

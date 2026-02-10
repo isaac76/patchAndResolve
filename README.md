@@ -1,5 +1,8 @@
 # Patch and Resolve
 
+[![npm version](https://badge.fury.io/js/@iodev%2Fpatch-and-resolve.svg)](https://www.npmjs.com/package/@iodev/patch-and-resolve)
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+
 A library for merging conflicting JSON patches with automatic conflict detection and resolution UI.
 
 ## Overview
@@ -9,8 +12,11 @@ This library helps resolve conflicts when two patches modify the same document. 
 **Key Features:**
 - Automatically merges non-conflicting patches
 - Detects and reports conflicts when patches modify the same fields
+- **Full support for nested objects** with field-level conflict detection
+- **JSON Patch (RFC 6902) compatible** - works with fast-json-patch and similar libraries
 - Provides a modal UI for manual conflict resolution
 - Completely agnostic to your storage/API layer
+- TypeScript support with full type definitions
 
 ## Demo
 
@@ -35,6 +41,13 @@ The demo application shows how to merge multiple remote patches into your local 
 ## Installation
 
 ```bash
+npm install @iodev/patch-and-resolve
+```
+
+For development:
+```bash
+git clone https://github.com/isaac76/patchAndResolve.git
+cd patchAndResolve
 npm install
 ```
 
@@ -352,9 +365,9 @@ if (result.success) {
 ```
 
 **Supported JSON Patch Operations:**
-- ✅ `add` and `replace` - Converted to field updates
+- ✅ `add` and `replace` - Converted to field updates (supports nested paths like `/user/name`)
 - ❌ `remove`, `move`, `copy`, `test` - Ignored (don't map to simple diffs)
-- ⚠️ Only top-level paths supported (e.g., `/message` works, `/user/name` ignored)
+- ✅ Nested paths fully supported (e.g., `/user/address/city`)
 
 This makes the library compatible with standard JSON Patch workflows while providing an intuitive UI for conflict resolution.
 

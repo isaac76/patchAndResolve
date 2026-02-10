@@ -69,6 +69,21 @@
     "react": "^18.0.0",
     "react-dom": "^18.0.0"
   },
+  "keywords": [
+    "patch",
+    "merge",
+    "conflict",
+    "conflict-resolution",
+    "json-patch",
+    "rfc6902",
+    "operational-transform",
+    "diff",
+    "sync",
+    "collaborative-editing",
+    "nested-objects",
+    "deep-merge"
+  ],
+  "license": "GPL-3.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/isaac76/patchAndResolve.git"

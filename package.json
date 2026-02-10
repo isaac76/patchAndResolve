@@ -1,6 +1,6 @@
 {
   "name": "@iodev/patch-and-resolve",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "private": false,
   "type": "module",
   "main": "./dist/patch-and-resolve.umd.js",

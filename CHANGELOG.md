@@ -1,3 +1,10 @@
+## [1.0.8](https://github.com/isaac76/patchAndResolve/compare/v1.0.7...v1.0.8) (2026-02-10)
+
+
+### Bug Fixes
+
+* update readme ([9ee2b70](https://github.com/isaac76/patchAndResolve/commit/9ee2b70319f9cd80cd52e4c7994f86e724f2bfc1))
+
 ## [1.0.7](https://github.com/isaac76/patchAndResolve/compare/v1.0.6...v1.0.7) (2026-02-10)
 
 
